@@ -152,7 +152,7 @@ public class WindowManager : DrawableGameComponent
 
     public IIMEHandler IMEHandler { get; set; }
 
-    public bool IsIMEEnabled => IMEHandler != null && IMEHandler.Enabled;
+    public bool IsIMEEnabled => IMEHandler != null;
 
     private GraphicsDeviceManager graphics;
 

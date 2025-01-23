@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Rampastring.Tools;
 using Rampastring.XNAUI.Input;
@@ -236,8 +236,11 @@ public class XNATextBox : XNAControl
 
     private void IMEHandler_CompositionChanged(object sender, CompositionChangedEventArgs e)
     {
-        if (WindowManager.IMEHandler.IMEFocus == this && textCompositionDelay && !string.IsNullOrEmpty(e.OldValue) && string.IsNullOrEmpty(e.NewValue))
-            textCompositionDelay = false;
+        if (WindowManager.IMEHandler.IMEFocus != this)
+            return;
+
+        if (!string.IsNullOrEmpty(e.OldValue) && string.IsNullOrEmpty(e.NewValue))
+            textCompositionDelay = true;
     }
 
     private void IMEHandler_CharInput(object sender, CharacterEventArgs e)
@@ -567,15 +570,23 @@ public class XNATextBox : XNAControl
         }
     }
 
-    private void IMEHandleBackspaceOrDeletion()
+    private bool IMEHandleBackspaceOrDeletion()
     {
-        if (!string.IsNullOrEmpty(WindowManager.IMEHandler.Composition))
+        if (string.IsNullOrEmpty(WindowManager.IMEHandler.Composition))
         {
-            textCompositionDelay = false;
+            if (textCompositionDelay == true)
+            {
+                textCompositionDelay = false;
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
         else
         {
-            textCompositionDelay = true;
+            return false;
         }
     }
 
@@ -583,8 +594,8 @@ public class XNATextBox : XNAControl
     {
         if (!IMEDisabled && WindowManager.IsIMEEnabled)
         {
-            IMEHandleBackspaceOrDeletion();
-            return;
+            if (!IMEHandleBackspaceOrDeletion())
+                return;
         }
 
         if (text.Length > InputPosition)
@@ -607,8 +618,8 @@ public class XNATextBox : XNAControl
     {
         if (!IMEDisabled && WindowManager.IsIMEEnabled)
         {
-            IMEHandleBackspaceOrDeletion();
-            return;
+            if (!IMEHandleBackspaceOrDeletion())
+                return;
         }
 
         if (text.Length > 0 && InputPosition > 0)
